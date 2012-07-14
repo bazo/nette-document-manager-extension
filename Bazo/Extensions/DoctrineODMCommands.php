@@ -87,7 +87,7 @@ class DoctrineODMCommands extends \Nette\Config\CompilerExtension
 	{
 		$class = get_called_class();
 		$configurator->onCompile[] = function(Configurator $configurator, \Nette\Config\Compiler $compiler) use($class) {
-			$compiler->addExtension('doctrineODMCommandsExtension', new $class);
+			$compiler->addExtension('doctrineODMCommands', new $class);
 		};
 	}
 }
