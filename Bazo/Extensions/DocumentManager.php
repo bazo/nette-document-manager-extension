@@ -12,7 +12,7 @@ use Doctrine\Common\ClassLoader,
  *
  * @author Martin Bažík
  */
-class DocumentManagerExtension extends \Nette\Config\CompilerExtension
+class DocumentManager extends \Nette\Config\CompilerExtension
 {
 	/**
 	 * Processes configuration data
