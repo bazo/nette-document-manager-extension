@@ -1,0 +1,21 @@
+{
+    "name": "bazo/nette-document-manager-extension",
+	"type": "library",
+    "description": "Nette document manager compiler extension",
+    "keywords": ["nette","mongodb","extension"],
+    "homepage": "https://github.com/bazo/nette-document-manager-extension",
+    "authors": [
+        {
+            "name": "Martin Bažík",
+            "email": "martin@bazo.sk",
+            "homepage": "http://bazo.sk"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+		"doctrine/mongodb-odm": "*"
+    },
+	"autoload": {
+        "psr-0": { "Bazo\\Extensions": "" }
+    }
+}
