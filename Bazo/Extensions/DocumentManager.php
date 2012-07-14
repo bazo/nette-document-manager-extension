@@ -26,13 +26,11 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 		
 		$config = $this->getConfig();
 		
-		// console application
 		$container->addDefinition($this->prefix('documentManager'))
 			->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
-			->setFactory('Extensions\DocumentManager::createDocumentManager', array('@container', $config))
+			->setFactory('\Bazo\Extensions\DocumentManager::createDocumentManager', array('@container', $config))
 			->setAutowired(FALSE);
 
-		// aliases
 		$container->addDefinition('documentManager')
 			->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
 			->setFactory('@container::getService', array($this->prefix('documentManager')));
