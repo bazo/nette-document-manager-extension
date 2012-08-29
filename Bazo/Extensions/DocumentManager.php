@@ -14,6 +14,30 @@ use Doctrine\Common\ClassLoader,
  */
 class DocumentManager extends \Nette\Config\CompilerExtension
 {
+	public 
+		/** @var array */	
+		$defaults = array(
+			'documentsDir' => '%appDir%/models/documents',
+			'proxyDir' => '%appDir%/models/proxies',
+			'hydratorDir' => '%appDir%/models/hydrators',
+			'dbname' => 'app',
+			'uri' => 'mongodb://localhost/app',
+			'cachePrefix' =>  'app',
+			'metaDataCacheClass' => '\Doctrine\Common\Cache\ArrayCache',
+			'autoGenerateHydratorClasses' => false,
+			'autoGenerateProxyClasses' => false,
+			'hydratorNamespace' => 'Hydrators',
+			'proxyNamespace' => 'Proxies',
+			'cacheAnnotations' => true,
+			'mongoOptions' => array('connect' => true),
+			'eventManager' => null,
+			'debug' => false,
+			'indexAnnotations' => true,
+			'metaDataCache' => null
+			
+		)
+	;
+	
 	/**
 	 * Processes configuration data
 	 *
@@ -24,11 +48,11 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 		
 		$container = $this->getContainerBuilder();
 		
-		$config = $this->getConfig();
+		$config = $this->getConfig($this->defaults, true);
 		
 		$container->addDefinition($this->prefix('documentManager'))
 			->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
-			->setFactory('\Bazo\Extensions\DocumentManager::createDocumentManager', array('@container', $config))
+			->setFactory('\Bazo\Extensions\DocumentManager::createDocumentManager', array($config))
 			->setAutowired(FALSE);
 
 		$container->addDefinition('documentManager')
@@ -36,38 +60,52 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 			->setFactory('@container::getService', array($this->prefix('documentManager')));
 	}
 	
-	public static function createDocumentManager(\Nette\DI\Container $container, $config)
+	/**
+	 * 
+	 * @param array $config
+	 * @return \Doctrine\ODM\MongoDB\DocumentManager
+	 */
+	public static function createDocumentManager($config)
 	{
-		$params = $container->parameters;
 		$configuration = new Configuration();
 		
 		$configuration->setProxyDir($config['proxyDir']);
-		$configuration->setProxyNamespace('Proxies');
+		$configuration->setProxyNamespace($config['proxyNamespace']);
 
 		$configuration->setHydratorDir($config['hydratorDir']);
-		$configuration->setHydratorNamespace('Hydrators');
+		$configuration->setHydratorNamespace($config['hydratorNamespace']);
 		
-		$isProductionMode = $params['productionMode'];
 		$configuration->setAutoGenerateHydratorClasses(!$isProductionMode);
 		$configuration->setAutoGenerateProxyClasses(!$isProductionMode);
 
-		$metadataCache = new $config['metaDataCacheClass'];
-		$metadataCache->setNamespace($config['cachePrefix']);
+		if(isset($config['metaDataCache']))
+		{
+			$metadataCache = $config['metaDataCache'];
+		}
+		else
+		{
+			$metadataCache = new $config['metaDataCacheClass'];
+			$metadataCache->setNamespace($config['cachePrefix']);
+		}
+		
 		$configuration->setMetadataCacheImpl($metadataCache);
 
 		\Doctrine\Common\Annotations\AnnotationRegistry::registerFile(VENDORS_DIR . '/doctrine/mongodb-odm/lib/Doctrine/ODM/MongoDB/Mapping/Annotations/DoctrineAnnotations.php');
 		
-		if($isProductionMode)
+		$reader = new AnnotationReader;
+		
+		if($config['cacheAnnotations'] == true)
 		{
 			$reader = new \Doctrine\Common\Annotations\CachedReader(
-				new AnnotationReader,
+				$reader,
 				$metadataCache,
-				false
+				$config['debug']
 			);
 		}
-		else
+		
+		if($config['indexAnnotations'] == true)
 		{
-			$reader = new AnnotationReader;
+			$reader = new \Doctrine\Common\Annotations\IndexedReader($reader);
 		}
 		
 		$driverImpl = new AnnotationDriver($reader, $config['documentsDir']);
@@ -76,9 +114,9 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 
 		$configuration->setDefaultDB($config['dbname']);
 
-		$mongo = new \Mongo($config['uri'], array('connect' => true));
+		$mongo = new \Mongo($config['uri'], $config['mongoOptions']);
 		$connection = new Connection($mongo);
-		$dm = \Doctrine\ODM\MongoDB\DocumentManager::create($connection, $configuration);
+		$dm = new \Doctrine\ODM\MongoDB\DocumentManager($connection, $configuration, $config['eventManager']);
 
 		return $dm;
 	}
