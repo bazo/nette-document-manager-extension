@@ -75,8 +75,8 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 		$configuration->setHydratorDir($config['hydratorDir']);
 		$configuration->setHydratorNamespace($config['hydratorNamespace']);
 		
-		$configuration->setAutoGenerateHydratorClasses(!$isProductionMode);
-		$configuration->setAutoGenerateProxyClasses(!$isProductionMode);
+		$configuration->setAutoGenerateHydratorClasses($config['autoGenerateHydratorClasses']);
+		$configuration->setAutoGenerateProxyClasses($config['autoGenerateProxyClasses']);
 
 		if(isset($config['metaDataCache']))
 		{
