@@ -112,7 +112,7 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 
 		$configuration->setDefaultDB($config['dbname']);
 
-		$configuration->setLoggerCallable(array($container->g, ''));
+		//$configuration->setLoggerCallable(array($container->g, ''));
 		
 		$mongo = new \Mongo($config['uri'], $config['mongoOptions']);
 		$connection = new Connection($mongo);
