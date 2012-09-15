@@ -50,7 +50,7 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 		
 		$container->addDefinition($this->prefix('documentManager'))
 			->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
-			->setFactory('\Bazo\Extensions\DocumentManager::createDocumentManager', array($config, '@container'))
+			->setFactory('\Bazo\Extensions\MongoDb\DI\DocumentManager::createDocumentManager', array($config, '@container'))
 			->setAutowired(FALSE);
 
 		$container->addDefinition('documentManager')
