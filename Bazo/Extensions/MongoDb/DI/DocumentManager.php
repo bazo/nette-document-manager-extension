@@ -1,5 +1,5 @@
 <?php
-namespace Bazo\Extensions\DI;
+namespace Bazo\Extensions\MongoDb\DI;
 
 use Doctrine\Common\ClassLoader,
 	Doctrine\Common\Annotations\AnnotationReader,

@@ -1,5 +1,5 @@
 <?php
-namespace Bazo\Extensions\DI;
+namespace Bazo\Extensions\MongoDb\DI;
 
 use Nette\Config\Configurator,
 	Nette\DI\ContainerBuilder,
