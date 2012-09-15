@@ -1,5 +1,5 @@
 <?php
-namespace Bazo\Extensions;
+namespace Bazo\Extensions\DI;
 
 use Doctrine\Common\ClassLoader,
 	Doctrine\Common\Annotations\AnnotationReader,
@@ -34,7 +34,6 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 			'debug' => false,
 			'indexAnnotations' => true,
 			'metaDataCache' => null
-			
 		)
 	;
 	
@@ -45,14 +44,13 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 	 */
 	public function loadConfiguration()
 	{
-		
 		$container = $this->getContainerBuilder();
 		
 		$config = $this->getConfig($this->defaults, true);
 		
 		$container->addDefinition($this->prefix('documentManager'))
 			->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
-			->setFactory('\Bazo\Extensions\DocumentManager::createDocumentManager', array($config))
+			->setFactory('\Bazo\Extensions\DocumentManager::createDocumentManager', array($config, '@container'))
 			->setAutowired(FALSE);
 
 		$container->addDefinition('documentManager')
@@ -65,7 +63,7 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 	 * @param array $config
 	 * @return \Doctrine\ODM\MongoDB\DocumentManager
 	 */
-	public static function createDocumentManager($config)
+	public static function createDocumentManager($config, \Nette\DI\Container $container)
 	{
 		$configuration = new Configuration();
 		
@@ -114,9 +112,11 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 
 		$configuration->setDefaultDB($config['dbname']);
 
+		$configuration->setLoggerCallable(array($container->g, ''));
+		
 		$mongo = new \Mongo($config['uri'], $config['mongoOptions']);
 		$connection = new Connection($mongo);
-		$dm = new \Doctrine\ODM\MongoDB\DocumentManager($connection, $configuration, $config['eventManager']);
+		$dm = \Doctrine\ODM\MongoDB\DocumentManager::create($connection, $configuration, $config['eventManager']);
 
 		return $dm;
 	}

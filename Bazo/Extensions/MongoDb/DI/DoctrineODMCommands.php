@@ -1,5 +1,5 @@
 <?php
-namespace Bazo\Extensions;
+namespace Bazo\Extensions\DI;
 
 use Nette\Config\Configurator,
 	Nette\DI\ContainerBuilder,
