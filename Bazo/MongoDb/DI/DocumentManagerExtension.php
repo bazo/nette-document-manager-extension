@@ -15,9 +15,8 @@ use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
 class DocumentManagerExtension extends \Nette\DI\CompilerExtension
 {
 
-	public
 	/** @var array */
-			$defaults = array(
+	public $defaults = array(
 		'documentsDir' => '%appDir%/models/documents',
 		'proxyDir' => '%appDir%/models/proxies',
 		'hydratorDir' => '%appDir%/models/hydrators',
@@ -35,9 +34,7 @@ class DocumentManagerExtension extends \Nette\DI\CompilerExtension
 		'debug' => false,
 		'indexAnnotations' => true,
 		'metaDataCache' => null
-			)
-
-	;
+	);
 
 	/**
 	 * Processes configuration data
@@ -52,7 +49,7 @@ class DocumentManagerExtension extends \Nette\DI\CompilerExtension
 
 		$container->addDefinition($this->prefix('documentManager'))
 				->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
-				->setFactory('\Bazo\Extensions\MongoDb\DI\DocumentManager::createDocumentManager', array($config, '@container'))
+				->setFactory('\Bazo\MongoDb\DI\DocumentManagerExtension::createDocumentManager', array($config, '@container'))
 				->setAutowired(FALSE);
 
 		$container->addDefinition('documentManager')
@@ -106,8 +103,6 @@ class DocumentManagerExtension extends \Nette\DI\CompilerExtension
 		$configuration->setMetadataDriverImpl($driverImpl);
 
 		$configuration->setDefaultDB($config['dbname']);
-
-		//$configuration->setLoggerCallable(array($container->g, ''));
 
 		$mongo = new \Mongo($config['uri'], $config['mongoOptions']);
 		$connection = new Connection($mongo);
