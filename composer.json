@@ -17,6 +17,6 @@
 		"doctrine/mongodb-odm": "*"
     },
 	"autoload": {
-        "psr-0": { "Bazo\\Extensions": "" }
+        "psr-0": { "Bazo": "" }
     }
 }
