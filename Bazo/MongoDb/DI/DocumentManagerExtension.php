@@ -1,42 +1,44 @@
 <?php
-namespace Bazo\Extensions\MongoDb\DI;
 
-use Doctrine\Common\ClassLoader,
-	Doctrine\Common\Annotations\AnnotationReader,
-	Doctrine\MongoDB\Connection,
-	Doctrine\ODM\MongoDB\Configuration,
-	Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
+namespace Bazo\MongoDb\DI;
+
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\MongoDB\Connection;
+use Doctrine\ODM\MongoDB\Configuration;
+use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
 
 /**
  * Description of DocumentManager
  *
  * @author Martin Bažík
  */
-class DocumentManager extends \Nette\Config\CompilerExtension
+class DocumentManagerExtension extends \Nette\DI\CompilerExtension
 {
-	public 
-		/** @var array */	
-		$defaults = array(
-			'documentsDir' => '%appDir%/models/documents',
-			'proxyDir' => '%appDir%/models/proxies',
-			'hydratorDir' => '%appDir%/models/hydrators',
-			'dbname' => 'app',
-			'uri' => 'mongodb://localhost/app',
-			'cachePrefix' =>  'app',
-			'metaDataCacheClass' => '\Doctrine\Common\Cache\ArrayCache',
-			'autoGenerateHydratorClasses' => false,
-			'autoGenerateProxyClasses' => false,
-			'hydratorNamespace' => 'Hydrators',
-			'proxyNamespace' => 'Proxies',
-			'cacheAnnotations' => true,
-			'mongoOptions' => array('connect' => true),
-			'eventManager' => null,
-			'debug' => false,
-			'indexAnnotations' => true,
-			'metaDataCache' => null
-		)
+
+	public
+	/** @var array */
+			$defaults = array(
+		'documentsDir' => '%appDir%/models/documents',
+		'proxyDir' => '%appDir%/models/proxies',
+		'hydratorDir' => '%appDir%/models/hydrators',
+		'dbname' => 'app',
+		'uri' => 'mongodb://localhost/app',
+		'cachePrefix' => 'app',
+		'metaDataCacheClass' => '\Doctrine\Common\Cache\ArrayCache',
+		'autoGenerateHydratorClasses' => false,
+		'autoGenerateProxyClasses' => false,
+		'hydratorNamespace' => 'Hydrators',
+		'proxyNamespace' => 'Proxies',
+		'cacheAnnotations' => true,
+		'mongoOptions' => array('connect' => true),
+		'eventManager' => null,
+		'debug' => false,
+		'indexAnnotations' => true,
+		'metaDataCache' => null
+			)
+
 	;
-	
+
 	/**
 	 * Processes configuration data
 	 *
@@ -45,19 +47,19 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 	public function loadConfiguration()
 	{
 		$container = $this->getContainerBuilder();
-		
+
 		$config = $this->getConfig($this->defaults, true);
-		
+
 		$container->addDefinition($this->prefix('documentManager'))
-			->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
-			->setFactory('\Bazo\Extensions\MongoDb\DI\DocumentManager::createDocumentManager', array($config, '@container'))
-			->setAutowired(FALSE);
+				->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
+				->setFactory('\Bazo\Extensions\MongoDb\DI\DocumentManager::createDocumentManager', array($config, '@container'))
+				->setAutowired(FALSE);
 
 		$container->addDefinition('documentManager')
-			->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
-			->setFactory('@container::getService', array($this->prefix('documentManager')));
+				->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
+				->setFactory('@container::getService', array($this->prefix('documentManager')));
 	}
-	
+
 	/**
 	 * 
 	 * @param array $config
@@ -66,60 +68,52 @@ class DocumentManager extends \Nette\Config\CompilerExtension
 	public static function createDocumentManager($config, \Nette\DI\Container $container)
 	{
 		$configuration = new Configuration();
-		
+
 		$configuration->setProxyDir($config['proxyDir']);
 		$configuration->setProxyNamespace($config['proxyNamespace']);
 
 		$configuration->setHydratorDir($config['hydratorDir']);
 		$configuration->setHydratorNamespace($config['hydratorNamespace']);
-		
+
 		$configuration->setAutoGenerateHydratorClasses($config['autoGenerateHydratorClasses']);
 		$configuration->setAutoGenerateProxyClasses($config['autoGenerateProxyClasses']);
 
-		if(isset($config['metaDataCache']))
-		{
+		if (isset($config['metaDataCache'])) {
 			$metadataCache = $config['metaDataCache'];
-		}
-		else
-		{
+		} else {
 			$metadataCache = new $config['metaDataCacheClass'];
 			$metadataCache->setNamespace($config['cachePrefix']);
 		}
-		
+
 		$configuration->setMetadataCacheImpl($metadataCache);
 
 		\Doctrine\Common\Annotations\AnnotationRegistry::registerFile(VENDORS_DIR . '/doctrine/mongodb-odm/lib/Doctrine/ODM/MongoDB/Mapping/Annotations/DoctrineAnnotations.php');
-		
+
 		$reader = new AnnotationReader;
-		
-		if($config['cacheAnnotations'] == true)
-		{
+
+		if ($config['cacheAnnotations'] == true) {
 			$reader = new \Doctrine\Common\Annotations\CachedReader(
-				$reader,
-				$metadataCache,
-				$config['debug']
+					$reader, $metadataCache, $config['debug']
 			);
 		}
-		
-		if($config['indexAnnotations'] == true)
-		{
+
+		if ($config['indexAnnotations'] == true) {
 			$reader = new \Doctrine\Common\Annotations\IndexedReader($reader);
 		}
-		
+
 		$driverImpl = new AnnotationDriver($reader, $config['documentsDir']);
-		
+
 		$configuration->setMetadataDriverImpl($driverImpl);
 
 		$configuration->setDefaultDB($config['dbname']);
 
 		//$configuration->setLoggerCallable(array($container->g, ''));
-		
+
 		$mongo = new \Mongo($config['uri'], $config['mongoOptions']);
 		$connection = new Connection($mongo);
 		$dm = \Doctrine\ODM\MongoDB\DocumentManager::create($connection, $configuration, $config['eventManager']);
 
 		return $dm;
 	}
-	
-	
+
 }

@@ -1,18 +1,18 @@
 <?php
-namespace Bazo\Extensions\MongoDb\DI;
 
-use Nette\Config\Configurator,
-	Nette\DI\ContainerBuilder,
-	Doctrine\Common\Cache\Cache,
-	Nette\Framework;
+namespace Bazo\MongoDb\DI;
+
+use Nette\Config\Configurator;
+use Nette\DI\ContainerBuilder;
 
 /**
  * Console service.
  *
  * @author	Martin Bažík
  */
-class DoctrineODMCommands extends \Nette\Config\CompilerExtension
+class DoctrineODMCommandsExtension extends \Nette\DI\CompilerExtension
 {
+
 	/** @var bool */
 	private $skipInitDefaultParameters;
 
@@ -39,43 +39,36 @@ class DoctrineODMCommands extends \Nette\Config\CompilerExtension
 
 		// console commands - ODM
 		$container->addDefinition($this->prefix('consoleCommandODMClearMetadataCache'))
-			->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\ClearCache\MetadataCommand')
-			->addTag('consoleCommand');
-		
-		$container->addDefinition($this->prefix('consoleCommandODMCreateSchema'))
-			->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\Schema\CreateCommand')
-			->addTag('consoleCommand');
-		
-		$container->addDefinition($this->prefix('consoleCommandODMDropSchema'))
-			->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\Schema\DropCommand')
-			->addTag('consoleCommand');
-		
-		$container->addDefinition($this->prefix('consoleCommandODMGenerateDocuments'))
-			->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\GenerateDocumentsCommand')
-			->addTag('consoleCommand');
-		
-		$container->addDefinition($this->prefix('consoleCommandODMGenerateHydrators'))
-			->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\GenerateHydratorsCommand')
-			->addTag('consoleCommand');
-		
-		$container->addDefinition($this->prefix('consoleCommandODMGenerateProxies'))
-			->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\GenerateProxiesCommand')
-			->addTag('consoleCommand');
-		
-		$container->addDefinition($this->prefix('consoleCommandODMGenerateRepositories'))
-			->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\GenerateRepositoriesCommand')
-			->addTag('consoleCommand');
-		
-		$container->addDefinition($this->prefix('consoleCommandODMQuery'))
-			->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\QueryCommand')
-			->addTag('consoleCommand');
-	}
+				->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\ClearCache\MetadataCommand')
+				->addTag('consoleCommand');
 
-	/**
-	 * @param \Nette\DI\ContainerBuilder
-	 */
-	protected function initDefaultParameters(ContainerBuilder $container)
-	{
+		$container->addDefinition($this->prefix('consoleCommandODMCreateSchema'))
+				->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\Schema\CreateCommand')
+				->addTag('consoleCommand');
+
+		$container->addDefinition($this->prefix('consoleCommandODMDropSchema'))
+				->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\Schema\DropCommand')
+				->addTag('consoleCommand');
+
+		$container->addDefinition($this->prefix('consoleCommandODMGenerateDocuments'))
+				->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\GenerateDocumentsCommand')
+				->addTag('consoleCommand');
+
+		$container->addDefinition($this->prefix('consoleCommandODMGenerateHydrators'))
+				->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\GenerateHydratorsCommand')
+				->addTag('consoleCommand');
+
+		$container->addDefinition($this->prefix('consoleCommandODMGenerateProxies'))
+				->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\GenerateProxiesCommand')
+				->addTag('consoleCommand');
+
+		$container->addDefinition($this->prefix('consoleCommandODMGenerateRepositories'))
+				->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\GenerateRepositoriesCommand')
+				->addTag('consoleCommand');
+
+		$container->addDefinition($this->prefix('consoleCommandODMQuery'))
+				->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\QueryCommand')
+				->addTag('consoleCommand');
 	}
 
 	/**
@@ -90,4 +83,5 @@ class DoctrineODMCommands extends \Nette\Config\CompilerExtension
 			$compiler->addExtension('doctrineODMCommands', new $class);
 		};
 	}
+
 }
