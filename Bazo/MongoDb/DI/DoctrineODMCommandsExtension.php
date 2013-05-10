@@ -2,9 +2,6 @@
 
 namespace Bazo\MongoDb\DI;
 
-use Nette\Config\Configurator;
-use Nette\DI\ContainerBuilder;
-
 /**
  * Console service.
  *
@@ -12,17 +9,6 @@ use Nette\DI\ContainerBuilder;
  */
 class DoctrineODMCommandsExtension extends \Nette\DI\CompilerExtension
 {
-
-	/** @var bool */
-	private $skipInitDefaultParameters;
-
-	/**
-	 * @param bool
-	 */
-	public function __construct($skipInitDefaultParameters = FALSE)
-	{
-		$this->skipInitDefaultParameters = $skipInitDefaultParameters;
-	}
 
 	/**
 	 * Processes configuration data
@@ -32,10 +18,6 @@ class DoctrineODMCommandsExtension extends \Nette\DI\CompilerExtension
 	public function loadConfiguration()
 	{
 		$container = $this->getContainerBuilder();
-
-		if (!$this->skipInitDefaultParameters) {
-			$this->initDefaultParameters($container);
-		}
 
 		// console commands - ODM
 		$container->addDefinition($this->prefix('consoleCommandODMClearMetadataCache'))
@@ -70,18 +52,4 @@ class DoctrineODMCommandsExtension extends \Nette\DI\CompilerExtension
 				->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\QueryCommand')
 				->addTag('consoleCommand');
 	}
-
-	/**
-	 * Register extension to compiler.
-	 *
-	 * @param \Nette\Config\Configurator $configurator
-	 */
-	public static function register(Configurator $configurator)
-	{
-		$class = get_called_class();
-		$configurator->onCompile[] = function(Configurator $configurator, \Nette\Config\Compiler $compiler) use($class) {
-			$compiler->addExtension('doctrineODMCommands', new $class);
-		};
-	}
-
 }
