@@ -85,7 +85,9 @@ class DocumentManagerExtension extends \Nette\DI\CompilerExtension
 		$configuration->setMetadataCacheImpl($metadataCache);
 
 		\Doctrine\Common\Annotations\AnnotationRegistry::registerFile(VENDORS_DIR . '/doctrine/mongodb-odm/lib/Doctrine/ODM/MongoDB/Mapping/Annotations/DoctrineAnnotations.php');
-
+		if(class_exists('\Gedmo\DoctrineExtensions')) {
+			\Gedmo\DoctrineExtensions::registerAnnotations();
+		}
 		$reader = new AnnotationReader;
 
 		if ($config['cacheAnnotations'] == true) {
