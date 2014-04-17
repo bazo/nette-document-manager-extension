@@ -60,7 +60,7 @@ class DocumentManagerExtension extends \Nette\DI\CompilerExtension
 
 
 	/**
-	 * 
+	 *
 	 * @param array $config
 	 * @return \Doctrine\ODM\MongoDB\DocumentManager
 	 */
@@ -86,7 +86,7 @@ class DocumentManagerExtension extends \Nette\DI\CompilerExtension
 
 		$configuration->setMetadataCacheImpl($metadataCache);
 
-		\Doctrine\Common\Annotations\AnnotationRegistry::registerFile(VENDORS_DIR . '/doctrine/mongodb-odm/lib/Doctrine/ODM/MongoDB/Mapping/Annotations/DoctrineAnnotations.php');
+		\Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__ . '/../../../../../../doctrine/mongodb-odm/lib/Doctrine/ODM/MongoDB/Mapping/Annotations/DoctrineAnnotations.php');
 		if (class_exists('\Gedmo\DoctrineExtensions')) {
 			\Gedmo\DoctrineExtensions::registerAnnotations();
 
