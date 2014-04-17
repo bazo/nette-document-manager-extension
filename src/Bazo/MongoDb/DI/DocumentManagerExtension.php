@@ -17,9 +17,9 @@ class DocumentManagerExtension extends \Nette\DI\CompilerExtension
 
 	/** @var array */
 	public $defaults = [
-		'documentsDir' => '%appDir%/models/documents',
-		'proxyDir' => '%appDir%/models/proxies',
-		'hydratorDir' => '%appDir%/models/hydrators',
+		'documentsDir' => '%appDir%/model/documents',
+		'proxyDir' => '%tempDir%/proxies',
+		'hydratorDir' => '%tempDir%/hydrators',
 		'dbname' => 'app',
 		'uri' => 'mongodb://localhost/app',
 		'cachePrefix' => 'app',
