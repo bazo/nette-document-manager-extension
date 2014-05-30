@@ -1,8 +1,8 @@
 <?php
 
-use Nette\DI\CompilerExtension;
-
 namespace Bazo\MongoDb\DI;
+
+use Nette\DI\CompilerExtension;
 
 
 
