@@ -1,13 +1,17 @@
 <?php
 
+use Nette\DI\CompilerExtension;
+
 namespace Bazo\MongoDb\DI;
+
+
 
 /**
  * Console service.
  *
  * @author	Martin Bažík
  */
-class DoctrineODMCommandsExtension extends \Nette\DI\CompilerExtension
+class DoctrineODMCommandsExtension extends CompilerExtension
 {
 
 	/**
@@ -55,4 +59,3 @@ class DoctrineODMCommandsExtension extends \Nette\DI\CompilerExtension
 
 
 }
-

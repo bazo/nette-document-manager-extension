@@ -11,9 +11,11 @@
 			"homepage": "http://bazo.sk"
 		}
 	],
+	"minimum-stability": "dev",
 	"require": {
 		"php": ">=5.4.0",
-		"doctrine/mongodb-odm": "@dev"
+		"doctrine/mongodb-odm": "@dev",
+		"nette/di": "@dev"
 	},
 	"require-dev": {
 		"gedmo/doctrine-extensions": "@dev"
