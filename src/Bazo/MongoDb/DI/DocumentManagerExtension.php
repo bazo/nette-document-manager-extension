@@ -2,6 +2,7 @@
 
 namespace Bazo\MongoDb\DI;
 
+
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\CachedReader;
 use Doctrine\Common\Annotations\IndexedReader;
@@ -11,8 +12,6 @@ use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
 use Nette\DI\CompilerExtension;
 use Nette\DI\Container;
-
-
 
 /**
  * @author Martin Bažík <martin@bazo.sk>
@@ -38,7 +37,8 @@ class DocumentManagerExtension extends CompilerExtension
 		'eventManager'					 => NULL,
 		'debug'							 => FALSE,
 		'indexAnnotations'				 => TRUE,
-		'metaDataCache'					 => NULL
+		'metaDataCache'					 => NULL,
+		'listeners'						 => []
 	];
 
 	/**
@@ -73,6 +73,12 @@ class DocumentManagerExtension extends CompilerExtension
 	{
 		$configuration = new Configuration();
 
+		if (is_null($config['eventManager'])) {
+			$evm = new \Doctrine\Common\EventManager;
+		} else {
+			$evm = $config['eventManager'];
+		}
+
 		$configuration->setProxyDir($config['proxyDir']);
 		$configuration->setProxyNamespace($config['proxyNamespace']);
 
@@ -92,11 +98,7 @@ class DocumentManagerExtension extends CompilerExtension
 		$configuration->setMetadataCacheImpl($metadataCache);
 
 		AnnotationDriver::registerAnnotationClasses();
-		if (class_exists('\Gedmo\DoctrineExtensions')) {
-			\Gedmo\DoctrineExtensions::registerAnnotations();
 
-			$configuration->addFilter('soft-deleteable', 'Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter');
-		}
 		$reader = new AnnotationReader;
 
 		if ($config['cacheAnnotations'] == TRUE) {
@@ -109,17 +111,42 @@ class DocumentManagerExtension extends CompilerExtension
 			$reader = new IndexedReader($reader);
 		}
 
+		if (class_exists(\Gedmo\DoctrineExtensions::class)) {
+			\Gedmo\DoctrineExtensions::registerAnnotations();
+
+			$configuration->addFilter('soft-deleteable', 'Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter');
+
+			foreach ($config['listeners'] as $listenerName => $enabled) {
+				if ($enabled) {
+					$listener = self::configureListener($listenerName, $reader);
+					$evm->addEventSubscriber($listener);
+				}
+			}
+		}
+
 		$driverImpl = new AnnotationDriver($reader, $config['documentsDir']);
 
 		$configuration->setMetadataDriverImpl($driverImpl);
 
 		$configuration->setDefaultDB($config['dbname']);
 
-		$mongo = new \MongoClient($config['uri'], $config['mongoOptions']);
-		$connection = new Connection($mongo);
-		$dm = DocumentManager::create($connection, $configuration, $config['eventManager']);
+		$mongo		 = new \MongoClient($config['uri'], $config['mongoOptions']);
+		$connection	 = new Connection($mongo);
+		$dm			 = DocumentManager::create($connection, $configuration, $evm);
 
 		return $dm;
+	}
+
+
+	private static function configureListener($listener, \Doctrine\Common\Annotations\Reader $reader)
+	{
+		switch($listener) {
+			case 'timestampable':
+				$listener = new \Gedmo\Timestampable\TimestampableListener;
+				$listener->setAnnotationReader($reader);
+
+				return $listener;
+		}
 	}
 
 
