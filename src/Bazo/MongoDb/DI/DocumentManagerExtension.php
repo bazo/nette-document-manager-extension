@@ -38,7 +38,9 @@ class DocumentManagerExtension extends CompilerExtension
 		'debug'							 => FALSE,
 		'indexAnnotations'				 => TRUE,
 		'metaDataCache'					 => NULL,
-		'listeners'						 => []
+		'listeners'						 => [],
+		'logger'						 => NULL,
+		'loggerPrefix'					 => 'MongoDB query: '
 	];
 
 	/**
@@ -130,6 +132,9 @@ class DocumentManagerExtension extends CompilerExtension
 
 		$configuration->setDefaultDB($config['dbname']);
 
+		$logger = new \Bazo\MongoDb\Logger($config['logger'], $config['loggerPrefix']);
+		$configuration->setLoggerCallable([$logger, 'logQuery']);
+
 		$mongo		 = new \MongoClient($config['uri'], $config['mongoOptions']);
 		$connection	 = new Connection($mongo);
 		$dm			 = DocumentManager::create($connection, $configuration, $evm);
@@ -140,7 +145,7 @@ class DocumentManagerExtension extends CompilerExtension
 
 	private static function configureListener($listener, \Doctrine\Common\Annotations\Reader $reader)
 	{
-		switch($listener) {
+		switch ($listener) {
 			case 'timestampable':
 				$listener = new \Gedmo\Timestampable\TimestampableListener;
 				$listener->setAnnotationReader($reader);
