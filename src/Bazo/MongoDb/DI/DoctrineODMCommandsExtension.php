@@ -39,6 +39,11 @@ class DoctrineODMCommandsExtension extends CompilerExtension
 				->addTag('console.command')
 				->addTag('kdyby.console.command');
 
+		$container->addDefinition($this->prefix('consoleCommandODMUpdateSchema'))
+				->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\Schema\UpdateCommand')
+				->addTag('console.command')
+				->addTag('kdyby.console.command');
+
 		$container->addDefinition($this->prefix('consoleCommandODMGenerateDocuments'))
 				->setClass('Doctrine\ODM\MongoDB\Tools\Console\Command\GenerateDocumentsCommand')
 				->addTag('console.command')

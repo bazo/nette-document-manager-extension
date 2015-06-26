@@ -40,7 +40,10 @@ class DocumentManagerExtension extends CompilerExtension
 		'metaDataCache'					 => NULL,
 		'listeners'						 => [],
 		'logger'						 => NULL,
-		'loggerPrefix'					 => 'MongoDB query: '
+		'loggerPrefix'					 => 'MongoDB query: ',
+		'filters'						 => [
+			'soft-deleteable' => FALSE
+		]
 	];
 
 	/**
@@ -116,7 +119,7 @@ class DocumentManagerExtension extends CompilerExtension
 		if (class_exists(\Gedmo\DoctrineExtensions::class)) {
 			\Gedmo\DoctrineExtensions::registerAnnotations();
 
-			$configuration->addFilter('soft-deleteable', 'Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter');
+			$configuration->addFilter('soft-deleteable', \Gedmo\SoftDeleteable\Filter\ODM\SoftDeleteableFilter::class);
 
 			foreach ($config['listeners'] as $listenerName => $enabled) {
 				if ($enabled) {
@@ -139,6 +142,12 @@ class DocumentManagerExtension extends CompilerExtension
 		$connection	 = new Connection($mongo);
 		$dm			 = DocumentManager::create($connection, $configuration, $evm);
 
+		foreach ($config['filters'] as $filter => $enabled) {
+			if ($enabled) {
+				$dm->getFilterCollection()->enable($filter);
+			}
+		}
+
 		return $dm;
 	}
 
@@ -148,6 +157,11 @@ class DocumentManagerExtension extends CompilerExtension
 		switch ($listener) {
 			case 'timestampable':
 				$listener = new \Gedmo\Timestampable\TimestampableListener;
+				$listener->setAnnotationReader($reader);
+
+				return $listener;
+			case 'soft-deleteable':
+				$listener = new \Gedmo\SoftDeleteable\SoftDeleteableListener;
 				$listener->setAnnotationReader($reader);
 
 				return $listener;
