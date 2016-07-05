@@ -3,13 +3,17 @@
 namespace Bazo\MongoDb\DI;
 
 
+use Bazo\MongoDb\Logger;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\CachedReader;
 use Doctrine\Common\Annotations\IndexedReader;
+use Doctrine\Common\Annotations\Reader;
+use Doctrine\Common\EventManager;
 use Doctrine\MongoDB\Connection;
 use Doctrine\ODM\MongoDB\Configuration;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
+use MongoClient;
 use Nette\DI\CompilerExtension;
 use Nette\DI\Container;
 
@@ -58,14 +62,12 @@ class DocumentManagerExtension extends CompilerExtension
 		$config = $this->getConfig($this->defaults, TRUE);
 
 		$container->addDefinition($this->prefix('documentManager'))
-				->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
-				->setFactory('\Bazo\MongoDb\DI\DocumentManagerExtension::createDocumentManager', [$config,
-					'@container'])
-				->setAutowired(FALSE);
-
-		$container->addDefinition('documentManager')
-				->setClass('\Doctrine\ODM\MongoDB\DocumentManager')
-				->setFactory('@container::getService', [$this->prefix('documentManager')]);
+				->setClass(DocumentManager::class)
+				->setFactory('\Bazo\MongoDb\DI\DocumentManagerExtension::createDocumentManager', [
+					$config,
+					'@container'
+				])
+		;
 	}
 
 
@@ -79,7 +81,7 @@ class DocumentManagerExtension extends CompilerExtension
 		$configuration = new Configuration();
 
 		if (is_null($config['eventManager'])) {
-			$evm = new \Doctrine\Common\EventManager;
+			$evm = new EventManager;
 		} else {
 			$evm = $config['eventManager'];
 		}
@@ -135,10 +137,10 @@ class DocumentManagerExtension extends CompilerExtension
 
 		$configuration->setDefaultDB($config['dbname']);
 
-		$logger = new \Bazo\MongoDb\Logger($config['logger'], $config['loggerPrefix']);
+		$logger = new Logger($config['logger'], $config['loggerPrefix']);
 		$configuration->setLoggerCallable([$logger, 'logQuery']);
 
-		$mongo		 = new \MongoClient($config['uri'], $config['mongoOptions']);
+		$mongo		 = new MongoClient($config['uri'], $config['mongoOptions']);
 		$connection	 = new Connection($mongo);
 		$dm			 = DocumentManager::create($connection, $configuration, $evm);
 
@@ -152,7 +154,7 @@ class DocumentManagerExtension extends CompilerExtension
 	}
 
 
-	private static function configureListener($listener, \Doctrine\Common\Annotations\Reader $reader)
+	private static function configureListener($listener, Reader $reader)
 	{
 		switch ($listener) {
 			case 'timestampable':
