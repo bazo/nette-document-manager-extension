@@ -14,15 +14,15 @@
 	"minimum-stability": "dev",
 	"require": {
 		"php": ">=5.4.0",
-		"doctrine/mongodb-odm": "@dev",
-		"nette/di": "@dev"
+		"doctrine/mongodb-odm": "*",
+		"nette/di": "*"
 	},
 	"require-dev": {
 		"gedmo/doctrine-extensions": "@dev"
 	},
 	"suggest": {
-		"gedmo/doctrine-extensions": "@dev",
-		"bazo/nette-console-extension": "@dev"
+		"gedmo/doctrine-extensions": "*",
+		"bazo/nette-console-extension": "*"
 	},
 	"autoload": {
 		"psr-0": {"Bazo": "src/"}
