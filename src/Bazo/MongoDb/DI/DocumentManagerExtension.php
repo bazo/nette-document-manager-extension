@@ -59,7 +59,7 @@ class DocumentManagerExtension extends CompilerExtension
 	{
 		$container = $this->getContainerBuilder();
 
-		$config = $this->getConfig($this->defaults, TRUE);
+		$config = $this->validateConfig($this->defaults, $this->config);
 
 		$container->addDefinition($this->prefix('documentManager'))
 				->setClass(DocumentManager::class)
