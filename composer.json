@@ -13,8 +13,8 @@
 	],
 	"minimum-stability": "dev",
 	"require": {
-		"php": ">=5.4.0",
-		"doctrine/mongodb-odm": "*",
+		"php": ">=7.1.0",
+		"doctrine/mongodb-odm": "^2.0@dev",
 		"nette/di": "*"
 	},
 	"require-dev": {

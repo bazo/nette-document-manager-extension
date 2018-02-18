@@ -2,18 +2,15 @@
 
 namespace Bazo\MongoDb\DI;
 
-
-use Bazo\MongoDb\Logger;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\CachedReader;
 use Doctrine\Common\Annotations\IndexedReader;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\EventManager;
-use Doctrine\MongoDB\Connection;
 use Doctrine\ODM\MongoDB\Configuration;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
-use MongoClient;
+use MongoDB\Client;
 use Nette\DI\CompilerExtension;
 use Nette\DI\Container;
 
@@ -25,27 +22,27 @@ class DocumentManagerExtension extends CompilerExtension
 
 	/** @var array */
 	public $defaults = [
-		'documentsDir'					 => '%appDir%/model/documents',
-		'proxyDir'						 => '%tempDir%/proxies',
-		'hydratorDir'					 => '%tempDir%/hydrators',
-		'dbname'						 => 'app',
-		'uri'							 => 'mongodb://localhost/app',
-		'cachePrefix'					 => 'app',
-		'metaDataCacheClass'			 => '\Doctrine\Common\Cache\ArrayCache',
-		'autoGenerateHydratorClasses'	 => FALSE,
-		'autoGenerateProxyClasses'		 => FALSE,
-		'hydratorNamespace'				 => 'Hydrators',
-		'proxyNamespace'				 => 'Proxies',
-		'cacheAnnotations'				 => TRUE,
-		'mongoOptions'					 => ['connect' => TRUE],
-		'eventManager'					 => NULL,
-		'debug'							 => FALSE,
-		'indexAnnotations'				 => TRUE,
-		'metaDataCache'					 => NULL,
-		'listeners'						 => [],
-		'logger'						 => NULL,
-		'loggerPrefix'					 => 'MongoDB query: ',
-		'filters'						 => [
+		'documentsDir' => '%appDir%/model/documents',
+		'proxyDir' => '%tempDir%/proxies',
+		'hydratorDir' => '%tempDir%/hydrators',
+		'dbname' => 'app',
+		'uri' => 'mongodb://localhost/app',
+		'cachePrefix' => 'app',
+		'metaDataCacheClass' => '\Doctrine\Common\Cache\ArrayCache',
+		'autoGenerateHydratorClasses' => FALSE,
+		'autoGenerateProxyClasses' => FALSE,
+		'hydratorNamespace' => 'Hydrators',
+		'proxyNamespace' => 'Proxies',
+		'cacheAnnotations' => TRUE,
+		'mongoOptions' => ['connect' => TRUE],
+		'eventManager' => NULL,
+		'debug' => FALSE,
+		'indexAnnotations' => TRUE,
+		'metaDataCache' => NULL,
+		'listeners' => [],
+		'logger' => NULL,
+		'loggerPrefix' => 'MongoDB query: ',
+		'filters' => [
 			'soft-deleteable' => FALSE
 		]
 	];
@@ -69,7 +66,6 @@ class DocumentManagerExtension extends CompilerExtension
 				])
 		;
 	}
-
 
 	/**
 	 *
@@ -104,7 +100,7 @@ class DocumentManagerExtension extends CompilerExtension
 
 		$configuration->setMetadataCacheImpl($metadataCache);
 
-		AnnotationDriver::registerAnnotationClasses();
+		//AnnotationDriver::registerAnnotationClasses();
 
 		$reader = new AnnotationReader;
 
@@ -137,12 +133,13 @@ class DocumentManagerExtension extends CompilerExtension
 
 		$configuration->setDefaultDB($config['dbname']);
 
-		$logger = new Logger($config['logger'], $config['loggerPrefix']);
-		$configuration->setLoggerCallable([$logger, 'logQuery']);
+		/*
+		  $logger = new Logger($config['logger'], $config['loggerPrefix']);
+		  $configuration->setLoggerCallable([$logger, 'logQuery']);
+		 */
 
-		$mongo		 = new MongoClient($config['uri'], $config['mongoOptions']);
-		$connection	 = new Connection($mongo);
-		$dm			 = DocumentManager::create($connection, $configuration, $evm);
+		$client = new Client($config['uri'], $config['mongoOptions']);
+		$dm = DocumentManager::create($client, $configuration, $evm);
 
 		foreach ($config['filters'] as $filter => $enabled) {
 			if ($enabled) {
@@ -152,7 +149,6 @@ class DocumentManagerExtension extends CompilerExtension
 
 		return $dm;
 	}
-
 
 	private static function configureListener($listener, Reader $reader)
 	{
@@ -169,6 +165,5 @@ class DocumentManagerExtension extends CompilerExtension
 				return $listener;
 		}
 	}
-
 
 }
