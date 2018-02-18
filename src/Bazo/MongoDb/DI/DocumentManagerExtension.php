@@ -40,8 +40,6 @@ class DocumentManagerExtension extends CompilerExtension
 		'indexAnnotations' => TRUE,
 		'metaDataCache' => NULL,
 		'listeners' => [],
-		'logger' => NULL,
-		'loggerPrefix' => 'MongoDB query: ',
 		'filters' => [
 			'soft-deleteable' => FALSE
 		]
@@ -132,11 +130,6 @@ class DocumentManagerExtension extends CompilerExtension
 		$configuration->setMetadataDriverImpl($driverImpl);
 
 		$configuration->setDefaultDB($config['dbname']);
-
-		/*
-		  $logger = new Logger($config['logger'], $config['loggerPrefix']);
-		  $configuration->setLoggerCallable([$logger, 'logQuery']);
-		 */
 
 		$client = new Client($config['uri'], $config['mongoOptions']);
 		$dm = DocumentManager::create($client, $configuration, $evm);
