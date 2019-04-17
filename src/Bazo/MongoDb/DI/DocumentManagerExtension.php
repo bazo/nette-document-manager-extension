@@ -131,7 +131,9 @@ class DocumentManagerExtension extends CompilerExtension
 
 		$configuration->setDefaultDB($config['dbname']);
 
-		$client = new Client($config['uri'], $config['mongoOptions']);
+		$uriOptions = ['typeMap' => DocumentManager::CLIENT_TYPEMAP] + $config['mongoOptions'];
+
+		$client = new Client($config['uri'], $uriOptions);
 		$dm = DocumentManager::create($client, $configuration, $evm);
 
 		foreach ($config['filters'] as $filter => $enabled) {
